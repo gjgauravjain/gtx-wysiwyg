@@ -1,32 +1,17 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { useMemo } from "react";
-
-const getContentStyle = (readOnly: boolean) => `body {
-      margin: ${readOnly ? "0px" : "8px"};
-      font-size: 13px;
-      font-family: Lato,-apple-system,BlinkMacSystemFont,Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif;
-    }
-    .mce-content-body {
-      padding: 8px !important;
-    }
-    .mce-content-body p {
-        padding: 0;
-        margin: 0;
-    }
-    .tox-editor-header {
-      display: none;
-    }
-  `;
-
 const allToolbars =
   "blocks | bold italic underline strikethrough blockquote| bullist numlist indent outdent | alignleft aligncenter alignright alignjustify | image | removeformat";
 
 export interface TextEditorProps {
   value?: string;
-  onChange?: (newValue: string) => void;
 }
 
-export const TinyMceTextEditor = ({ value, onChange }: TextEditorProps) => {
+export const TinyMceTextEditor = ({ value }: TextEditorProps) => {
+  const onChange = (newValue: string) => {
+    console.log("onChange", newValue);
+  };
+
   const editor = useMemo(
     () => (
       <Editor
@@ -42,6 +27,27 @@ export const TinyMceTextEditor = ({ value, onChange }: TextEditorProps) => {
           paste_data_images: true,
           toolbar: allToolbars,
           elementpath: false,
+          image_description: false,
+          image_dimensions: false,
+          file_picker_callback: function (callback, value, meta) {
+            // Provide file and text for the link dialog
+            if (meta.filetype == "file") {
+              callback("mypage.html", { text: "My text" });
+            }
+
+            // Provide image and alt text for the image dialog
+            if (meta.filetype == "image") {
+              callback("myimage.jpg", { alt: "My alt text" });
+            }
+
+            // Provide alternative source and posted for the media dialog
+            if (meta.filetype == "media") {
+              callback("movie.mp4", {
+                source2: "alt.ogg",
+                poster: "image.jpg",
+              });
+            }
+          },
         }}
         onEditorChange={onChange}
       />
